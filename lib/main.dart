@@ -16,11 +16,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Sensors Demo',
+      title: 'Snake Motion Sensor Game',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Main Canvas'),
     );
   }
 }
@@ -35,9 +36,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  static const int _snakeRows = 20;
-  static const int _snakeColumns = 20;
-  static const double _snakeCellSize = 10.0;
+  static const int _snakeRows = 40;
+  static const int _snakeColumns = 40;
+  static const double _snakeCellSize = 8.0;
 
   List<double> _accelerometerValues;
   List<double> _userAccelerometerValues;
@@ -57,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sensor Example'),
+        title: const Text('Snake Motion Game'),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:sensors/sensors.dart';
 
 class Snake extends StatefulWidget {
-  Snake({this.rows = 20, this.columns = 20, this.cellSize = 10.0}) {
+  Snake({this.rows = 25, this.columns = 25, this.cellSize = 10.0}) {
     assert(10 <= rows);
     assert(10 <= columns);
     assert(5.0 <= cellSize);
@@ -97,7 +97,7 @@ class SnakeState extends State<Snake> {
 
 class GameState {
   GameState(this.rows, this.columns) {
-    snakeLength = math.min(rows, columns) - 5;
+    snakeLength = math.min(rows, columns) - 30;
   }
 
   int rows;
