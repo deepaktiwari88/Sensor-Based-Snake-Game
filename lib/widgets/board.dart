@@ -1,7 +1,9 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:math' as math;
 
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sensors/sensors.dart';
 import 'package:snake/widgets//apple.dart';
 import 'package:snake/widgets/failure.dart';
 import 'package:snake/widgets/game_constants.dart';
@@ -9,6 +11,8 @@ import 'package:snake/widgets/point.dart';
 import 'package:snake/widgets/snake_piece.dart';
 import 'package:snake/widgets/splash.dart';
 import 'package:snake/widgets/victory.dart';
+
+import 'controls.dart';
 
 class Board extends StatefulWidget {
   @override
@@ -25,9 +29,21 @@ class _BoardState extends State<Board> {
   Direction _direction = Direction.UP;
   var _gameState = GameState.SPLASH;
 
+  UserAccelerometerEvent acceleration;
+
+  @override
+  void initState() {
+    super.initState();
+    userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+      setState(() {
+        acceleration = event;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return new Container(
+    return Container(
         color: Color(0xFFFFFFFF),
         width: BOARD_SIZE,
         height: BOARD_SIZE,
@@ -85,8 +101,9 @@ class _BoardState extends State<Board> {
 
   void _onTimerTick(Timer timer) {
     _move();
+    _directionDecideOnAccelerometerReadings();
 
-    if (_isWallCollision()) {
+    if (_isWallAndSelfCollision()) {
       _changeGameState(GameState.FAILURE);
       return;
     }
@@ -99,6 +116,82 @@ class _BoardState extends State<Board> {
         _grow();
       }
       return;
+    }
+  }
+
+  void _directionDecideOnAccelerometerReadings() {
+    if (acceleration != null) {
+      final x = acceleration.x;
+      final y = acceleration.y;
+      print(x.toString() + " " + y.toString());
+
+      if (x.abs() > THRESHOLD || y.abs() > THRESHOLD) {
+        switch (_direction) {
+          case Direction.LEFT:
+            if (y > 0) {
+              setState(() {
+                _direction = Direction.UP;
+              });
+              return;
+            }
+
+            if (y < 0) {
+              setState(() {
+                _direction = Direction.DOWN;
+              });
+              return;
+            }
+            break;
+
+          case Direction.RIGHT:
+            if (y > 0) {
+              setState(() {
+                _direction = Direction.UP;
+              });
+              return;
+            }
+
+            if (y < 0) {
+              setState(() {
+                _direction = Direction.DOWN;
+              });
+              return;
+            }
+            break;
+
+          case Direction.UP:
+            if (x < 0) {
+              setState(() {
+                _direction = Direction.LEFT;
+              });
+              return;
+            }
+
+            if (x > 0) {
+              setState(() {
+                _direction = Direction.RIGHT;
+              });
+              return;
+            }
+            break;
+
+          case Direction.DOWN:
+            if (x < 0) {
+              setState(() {
+                _direction = Direction.LEFT;
+              });
+              return;
+            }
+
+            if (x > 0) {
+              setState(() {
+                _direction = Direction.RIGHT;
+              });
+              return;
+            }
+            break;
+        }
+      }
     }
   }
 
@@ -115,7 +208,7 @@ class _BoardState extends State<Board> {
     });
   }
 
-  bool _isWallCollision() {
+  bool _isWallAndSelfCollision() {
     var currentHeadPos = _snakePiecePositions.first;
 
     if (currentHeadPos.x < 0 ||
@@ -134,13 +227,6 @@ class _BoardState extends State<Board> {
         _snakePiecePositions.first.y == _applePosition.y) {
       return true;
     }
-    print(_snakePiecePositions.first.x.toString() +
-        " " +
-        _applePosition.x.toString() +
-        " " +
-        _snakePiecePositions.first.y.toString() +
-        " " +
-        _applePosition.y.toString());
     return false;
   }
 
@@ -188,7 +274,7 @@ class _BoardState extends State<Board> {
         _moveFromSplashToRunningState();
         break;
       case GameState.RUNNING:
-        _changeDirectionBasedOnTap(tapUpDetails);
+//        _changeDirectionBasedOnTap(tapUpDetails);
         break;
       case GameState.VICTORY:
         _changeGameState(GameState.SPLASH);
@@ -204,82 +290,8 @@ class _BoardState extends State<Board> {
     _generateNewApple();
     _direction = Direction.UP;
     _changeGameState(GameState.RUNNING);
-    _timer = new Timer.periodic(new Duration(milliseconds: 500), _onTimerTick);
-  }
-
-  void _changeDirectionBasedOnTap(TapUpDetails tapUpDetails) {
-    RenderBox getBox = context.findRenderObject();
-    var localPosition = getBox.globalToLocal(tapUpDetails.globalPosition);
-    final x = (localPosition.dx / PIECE_SIZE).round();
-    final y = (localPosition.dy / PIECE_SIZE).round();
-
-    final currentHeadPos = _snakePiecePositions.first;
-
-    switch (_direction) {
-      case Direction.LEFT:
-        if (y < currentHeadPos.y) {
-          setState(() {
-            _direction = Direction.UP;
-          });
-          return;
-        }
-
-        if (y > currentHeadPos.y) {
-          setState(() {
-            _direction = Direction.DOWN;
-          });
-          return;
-        }
-        break;
-
-      case Direction.RIGHT:
-        if (y < currentHeadPos.y) {
-          setState(() {
-            _direction = Direction.UP;
-          });
-          return;
-        }
-
-        if (y > currentHeadPos.y) {
-          setState(() {
-            _direction = Direction.DOWN;
-          });
-          return;
-        }
-        break;
-
-      case Direction.UP:
-        if (x < currentHeadPos.x) {
-          setState(() {
-            _direction = Direction.LEFT;
-          });
-          return;
-        }
-
-        if (x > currentHeadPos.x) {
-          setState(() {
-            _direction = Direction.RIGHT;
-          });
-          return;
-        }
-        break;
-
-      case Direction.DOWN:
-        if (x < currentHeadPos.x) {
-          setState(() {
-            _direction = Direction.LEFT;
-          });
-          return;
-        }
-
-        if (x > currentHeadPos.x) {
-          setState(() {
-            _direction = Direction.RIGHT;
-          });
-          return;
-        }
-        break;
-    }
+    _timer = new Timer.periodic(
+        new Duration(milliseconds: TIMER_VALUE), _onTimerTick);
   }
 
   void _changeGameState(GameState gameState) {
@@ -303,7 +315,7 @@ class _BoardState extends State<Board> {
 
   void _generateNewApple() {
     setState(() {
-      Random rng = Random();
+      math.Random rng = math.Random();
       var min = 0;
       var max = BOARD_SIZE ~/ PIECE_SIZE;
       var nextX = min + rng.nextInt(max - min);
@@ -311,7 +323,7 @@ class _BoardState extends State<Board> {
 
       Point newApple = Point(nextX.toDouble(), nextY.toDouble());
 
-      if (newApple.checkInList(0,_snakePiecePositions)) {
+      if (newApple.checkInList(0, _snakePiecePositions)) {
         _generateNewApple();
       } else {
         _applePosition = newApple;

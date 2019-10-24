@@ -1,7 +1,3 @@
-// Copyright 2017 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sensors/sensors.dart';
@@ -48,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+
     final List<String> accelerometer =
         _accelerometerValues?.map((double v) => v.toStringAsFixed(1))?.toList();
     final List<String> gyroscope =

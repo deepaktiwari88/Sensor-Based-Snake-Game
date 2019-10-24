@@ -12,7 +12,7 @@ class Victory extends StatelessWidget {
       child: Center(
         child: Text(
           "Victory! Tap to play again!",
-            textAlign: TextAlign.center,
+          textAlign: TextAlign.center,
           style: TextStyle(color: const Color(0xFF50C878)),
         ),
       ),
