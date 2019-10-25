@@ -1,0 +1,2 @@
+int TIMER_VALUE = 500;
+double THRESHOLD = 0.5;

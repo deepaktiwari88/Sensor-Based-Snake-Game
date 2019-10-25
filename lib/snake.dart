@@ -1,7 +1,3 @@
-// Copyright 2017 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -9,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:sensors/sensors.dart';
 
 class Snake extends StatefulWidget {
-  Snake({this.rows = 20, this.columns = 20, this.cellSize = 10.0}) {
+  Snake({this.rows = 25, this.columns = 25, this.cellSize = 10.0}) {
     assert(10 <= rows);
     assert(10 <= columns);
     assert(5.0 <= cellSize);
@@ -21,36 +17,6 @@ class Snake extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => SnakeState(rows, columns, cellSize);
-}
-
-class SnakeBoardPainter extends CustomPainter {
-  SnakeBoardPainter(this.state, this.cellSize);
-
-  GameState state;
-  double cellSize;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint blackLine = Paint()..color = Colors.black;
-    final Paint blackFilled = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(
-      Rect.fromPoints(Offset.zero, size.bottomLeft(Offset.zero)),
-      blackLine,
-    );
-    for (math.Point<int> p in state.body) {
-      final Offset a = Offset(cellSize * p.x, cellSize * p.y);
-      final Offset b = Offset(cellSize * (p.x + 1), cellSize * (p.y + 1));
-
-      canvas.drawRect(Rect.fromPoints(a, b), blackFilled);
-    }
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
-  }
 }
 
 class SnakeState extends State<Snake> {
@@ -97,7 +63,7 @@ class SnakeState extends State<Snake> {
 
 class GameState {
   GameState(this.rows, this.columns) {
-    snakeLength = math.min(rows, columns) - 5;
+    snakeLength = math.min(rows, columns) - 30;
   }
 
   int rows;
@@ -114,5 +80,35 @@ class GameState {
     body.add(next);
     if (body.length > snakeLength) body.removeAt(0);
     direction = newDirection ?? direction;
+  }
+}
+
+class SnakeBoardPainter extends CustomPainter {
+  SnakeBoardPainter(this.state, this.cellSize);
+
+  GameState state;
+  double cellSize;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint blackLine = Paint()..color = Colors.black;
+    final Paint blackFilled = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(
+      Rect.fromPoints(Offset.zero, size.bottomLeft(Offset.zero)),
+      blackLine,
+    );
+    for (math.Point<int> p in state.body) {
+      final Offset a = Offset(cellSize * p.x, cellSize * p.y);
+      final Offset b = Offset(cellSize * (p.x + 1), cellSize * (p.y + 1));
+
+      canvas.drawRect(Rect.fromPoints(a, b), blackFilled);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
   }
 }
