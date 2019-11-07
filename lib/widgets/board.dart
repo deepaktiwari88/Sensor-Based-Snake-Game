@@ -30,6 +30,7 @@ class _BoardState extends State<Board> {
   var _gameState = GameState.SPLASH;
 
   UserAccelerometerEvent acceleration;
+  GyroscopeEvent gyroscope;
 
   @override
   void initState() {
@@ -37,6 +38,11 @@ class _BoardState extends State<Board> {
     userAccelerometerEvents.listen((UserAccelerometerEvent event) {
       setState(() {
         acceleration = event;
+      });
+    });
+    gyroscopeEvents.listen((GyroscopeEvent event) {
+      setState(() {
+        gyroscope = event;
       });
     });
   }
@@ -100,8 +106,8 @@ class _BoardState extends State<Board> {
   }
 
   void _onTimerTick(Timer timer) {
-    _move();
     _directionDecideOnAccelerometerReadings();
+    _move();
 
     if (_isWallAndSelfCollision()) {
       _changeGameState(GameState.FAILURE);
@@ -123,19 +129,22 @@ class _BoardState extends State<Board> {
     if (acceleration != null) {
       final x = acceleration.x;
       final y = acceleration.y;
-      print(x.toString() + " " + y.toString());
 
-      if (x.abs() > THRESHOLD || y.abs() > THRESHOLD) {
+      final x_gyro = gyroscope.x;
+      final y_gyro = gyroscope.y;
+
+      if (x_gyro.abs() > THRESHOLD || y_gyro.abs() > THRESHOLD) {
+        print(x_gyro.toString() + " " + y_gyro.toString());
         switch (_direction) {
           case Direction.LEFT:
-            if (y > 0) {
+            if (x_gyro < 0) {
               setState(() {
                 _direction = Direction.UP;
               });
               return;
             }
 
-            if (y < 0) {
+            if (x_gyro > 0) {
               setState(() {
                 _direction = Direction.DOWN;
               });
@@ -144,14 +153,14 @@ class _BoardState extends State<Board> {
             break;
 
           case Direction.RIGHT:
-            if (y > 0) {
+            if (x_gyro < 0) {
               setState(() {
                 _direction = Direction.UP;
               });
               return;
             }
 
-            if (y < 0) {
+            if (x_gyro > 0) {
               setState(() {
                 _direction = Direction.DOWN;
               });
@@ -160,14 +169,14 @@ class _BoardState extends State<Board> {
             break;
 
           case Direction.UP:
-            if (x < 0) {
+            if (y_gyro < 0) {
               setState(() {
                 _direction = Direction.LEFT;
               });
               return;
             }
 
-            if (x > 0) {
+            if (y_gyro > 0) {
               setState(() {
                 _direction = Direction.RIGHT;
               });
@@ -176,14 +185,14 @@ class _BoardState extends State<Board> {
             break;
 
           case Direction.DOWN:
-            if (x < 0) {
+            if (y_gyro < 0) {
               setState(() {
                 _direction = Direction.LEFT;
               });
               return;
             }
 
-            if (x > 0) {
+            if (y_gyro > 0) {
               setState(() {
                 _direction = Direction.RIGHT;
               });
